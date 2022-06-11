@@ -1,46 +1,38 @@
-version: "3.8"
-
 services:
-  reverse-proxy:
-    image: traefik:latest
-    command:
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - "80:80"
-    networks:
-      - "demo-net"
-    volumes: 
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
-  app:
-    container_name: myapp
+  web:
     build: .
-    image: dockertraefik-app
-    command: uvicorn app.main:app --host 0.0.0.0
-    networks:
-      - "demo-net"
-    env_file:
-      - .env
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn app.main:app --host 0.0.0.0'
+    volumes:
+      - .:/app
+    expose:
+      - 8000
+    environment:
+      - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+    depends_on:
+      - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`fastapi.localhost`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)"
 
   db:
-    container_name: mydb
-    image: postgres:latest
+    image: postgres:13-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - "demo-net"
-    ports:
-      - 5432:5432
-    env_file:
-      - .env
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=fastapi_traefik
+      - POSTGRES_PASSWORD=fastapi_traefik
+      - POSTGRES_DB=fastapi_traefik
 
-networks:
-  demo-net:
+  traefik:
+    image: traefik:v2.2
+    ports:
+      - 8008:80
+      - 8081:8080
+    volumes:
+      - "./traefik.dev.toml:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
   postgres_data:

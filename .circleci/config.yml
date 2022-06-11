@@ -4,9 +4,9 @@ image_config: &image_config
   # either as project-specific environment variables
   # or as resources in your organization's org-global Context
 
-  IMAGE_NAME: mydoker0wizard
+  IMAGE_NAME: fastapi-postgres-docker
 
-  IMAGE_TAG: test
+  IMAGE_TAG: latest
 
   # NOTE: if you're modifying this config.yml file manually
   # rather than using the included setup script,
@@ -54,7 +54,7 @@ jobs:
 
   test_image:
     docker:
-      - image: $DOCKER_USERNAME/mydoker0wizard:test
+      - image: $DOCKER_USERNAME/dockerfile-wizard:test
         environment:
           <<: *image_config
 

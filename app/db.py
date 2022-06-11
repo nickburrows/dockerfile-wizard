@@ -1,12 +1,10 @@
-# app/db.py
-from databases import Database
+import databases
 import ormar
 import sqlalchemy
 
 from .config import settings
 
-database = Database(settings.db_url)
-
+database = databases.Database(settings.db_url)
 metadata = sqlalchemy.MetaData()
 
 
