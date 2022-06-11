@@ -52,6 +52,41 @@ jobs:
       - store_artifacts:
           path: Dockerfile
 
+  docker-wizard-backend:
+    <<: *defaults
+    working_directory: /app
+    steps:
+      - checkout:
+          path: .
+      - *prepare_venv
+      - run:
+          name: Runnning app tests
+          command: |
+            PYTHONPATH=. poetry run pytest app/tests
+
+  docker-wizard-backend-heroku:
+    <<: *defaults
+    steps:
+      - setup_remote_docker:
+          # Supported versions: https://circleci.com/docs/2.0/building-docker-images/#docker-version
+          version: 20.10.6
+      - checkout:
+          path: .
+      - run:
+          name: Build image
+          command: |
+            sudo curl https://cli-assets.heroku.com/install.sh | sh
+            make build-app-heroku
+      - run:
+          name: Push Image to Heroku
+          command: |
+            # Push the built container to the Heroku image registry
+            make push-app-heroku
+      - run:
+          name: Release to Heroku
+          command: |
+            make release-heroku
+
   test_image:
     docker:
       - image: $DOCKER_USERNAME/dockerfile-wizard:test
