@@ -10,10 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      DOCKERIMAGE_NAME: ${{ github.repository }}
-      DOCKERIMAGE_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-
     steps:
       - uses: actions/checkout@v3
 
@@ -22,13 +18,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
+          context: .
           push: true
-          tags: ${{ env.DOCKERIMAGE_USERNAME }}/${{ env.DOCKERIMAGE_NAME }}:latest
+          tags: user/app:latest
