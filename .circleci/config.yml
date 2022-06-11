@@ -4,7 +4,7 @@ image_config: &image_config
   # either as project-specific environment variables
   # or as resources in your organization's org-global Context
 
-  IMAGE_NAME: fastapi-postgres-docker
+  IMAGE_NAME: dockerfile-wizard
 
   IMAGE_TAG: latest
 
@@ -15,9 +15,9 @@ image_config: &image_config
 
   LINUX_VERSION: DEBIAN_STRETCH
 
-  # # RUBY_VERSION_NUM: # pick a version from https://cache.ruby-lang.org/pub/ruby
+  # # # RUBY_VERSION_NUM: # pick a version from https://cache.ruby-lang.org/pub/ruby
 
-  NODE_VERSION_NUM: false
+  # NODE_VERSION_NUM: false
 
   PYTHON_VERSION_NUM: 3.9.4
 
@@ -63,8 +63,8 @@ jobs:
 
       - run:
           name: start Xvfb for phantomjs test
-          # command: Xvfb :99
-          # background: true
+          # # command: Xvfb :99
+          # # background: true
 
       - run:
           name: bats tests
