@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  reverse-proxy:
+    image: traefik:latest
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    networks:
+      - "demo-net"
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  app:
+    container_name: myapp
+    build: .
+    image: dockertraefik-app
+    command: uvicorn app.main:app --host 0.0.0.0
+    networks:
+      - "demo-net"
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`fastapi.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+
+  db:
+    container_name: mydb
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - "demo-net"
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+
+networks:
+  demo-net:
+
+volumes:
+  postgres_data:
