@@ -32,6 +32,18 @@ image_config: &image_config
   BROWSERS: false
 
 version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/python:3.9.5
+  working_directory: .
+
+prepare_venv: &prepare_venv
+  run:
+    name: Create venv
+    command: |
+      pip install poetry
+      poetry install
+
 jobs:
   build:
     machine: true
