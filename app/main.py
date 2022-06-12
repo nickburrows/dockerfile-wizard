@@ -1,26 +1,29 @@
-# app/main.py
+from fastapi import Depends, FastAPI
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
-from fastapi import FastAPI
-
-from app.db import User, database
+from app.db import get_session, init_db
+from app.models import Song, SongCreate
 
 app = FastAPI(title="FastAPI, Docker, and Traefik")
 
 
-@app.get("/")
-async def read_root():
-    return await User.objects.all()
+@app.get("/ping")
+async def pong():
+    return {"ping": "pong!"}
 
 
-@app.on_event("startup")
-async def startup():
-    if not database.is_connected:
-        await database.connect()
-    # create a dummy entry
-    await User.objects.get_or_create(email="test@test.com")
+@app.get("/songs", response_model=list[Song])
+async def get_songs(session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Song))
+    songs = result.scalars().all()
+    return [Song(name=song.name, artist=song.artist, id=song.id) for song in songs]
 
 
-@app.on_event("shutdown")
-async def shutdown():
-    if database.is_connected:
-        await database.disconnect()
+@app.post("/songs")
+async def add_song(song: SongCreate, session: AsyncSession = Depends(get_session)):
+    song = Song(name=song.name, artist=song.artist)
+    session.add(song)
+    await session.commit()
+    await session.refresh(song)
+    return song

@@ -10,6 +10,7 @@ pydantic==1.9.0
 python-multipart==0.0.5
 python-dotenv==0.19.2
 SQLAlchemy==1.4.31
+sqlmodel==0.0.4
 tenacity==8.0.1
 uvicorn==0.17.6
 uvloop==0.16.0

@@ -7,7 +7,7 @@ services:
     expose:
       - 8000
     environment:
-      - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+      - DATABASE_URL=postgresql+asyncpg://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
     depends_on:
       - db
     labels:
@@ -24,12 +24,13 @@ services:
       - POSTGRES_USER=fastapi_traefik
       - POSTGRES_PASSWORD=fastapi_traefik
       - POSTGRES_DB=fastapi_traefik
+      - PGDATA=/var/lib/postgresql/data/pgdata
 
   traefik:
     image: traefik:v2.2
     ports:
       - 8008:80
-      - 8081:8080
+      - 8004:8080
     volumes:
       - "./traefik.dev.toml:/etc/traefik/traefik.toml"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
